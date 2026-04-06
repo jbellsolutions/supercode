@@ -45,7 +45,7 @@ export class TerminalRenderer {
       case "tool_result":
         this.stopSpinner();
         if (event.toolResult) {
-          const { success, output, error } = event.toolResult;
+          const { success, output, error } = event.toolResult.result;
           if (success) {
             const preview = output.split("\n").slice(0, 3).join("\n");
             console.log(chalk.green(`  ✓ ${preview.slice(0, 200)}${preview.length > 200 ? "..." : ""}`));

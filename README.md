@@ -194,6 +194,31 @@ By routing everyday tasks to Gemini Flash (free tier), most sessions run at **ne
 
 ---
 
+## Local Dashboard
+
+Run the web dashboard locally instead of the CLI:
+
+```bash
+# Build everything first
+pnpm build
+
+# Start the dashboard (default port 4242)
+pnpm dashboard
+# or with a custom port:
+PORT=3000 pnpm dashboard
+```
+
+Open [http://localhost:4242](http://localhost:4242) — you'll see:
+- **Model selector** — switch between Gemini, Codex, and OpenRouter models mid-session
+- **Mode selector** — default / acceptEdits / plan / dontAsk
+- **Streaming chat** — responses stream in real-time, same as the CLI
+- **Tool log** — every tool call and result shown in the right sidebar
+- **Approval modal** — tool permission prompts appear as a popup instead of a terminal prompt
+- **Session history** — left sidebar lists past sessions; click any to resume
+- **Cost tracker** — live token count and cost in the top bar
+
+---
+
 ## Development
 
 ```bash

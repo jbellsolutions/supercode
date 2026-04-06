@@ -140,7 +140,7 @@ export async function* agentLoop(
       // Run post-tool hooks
       await runtime.hooks.runPostTool(call, result);
 
-      yield { type: "tool_result", toolCall: call, toolResult: result };
+      yield { type: "tool_result", toolResult: { call, result } };
 
       // Add result to message history
       session.messages.push({

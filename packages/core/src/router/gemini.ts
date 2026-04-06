@@ -77,10 +77,11 @@ export class GeminiAdapter {
     }
 
     const lastUserMsg = history.pop();
-    const userText = lastUserMsg?.parts[0] &&
-      "text" in lastUserMsg.parts[0]
-      ? lastUserMsg.parts[0].text
-      : "";
+    const lastPart = lastUserMsg?.parts[0];
+    const userText: string =
+      lastPart && "text" in lastPart && typeof lastPart.text === "string"
+        ? lastPart.text
+        : "";
 
     const chat = geminiModel.startChat({
       history,
