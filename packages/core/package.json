@@ -1,0 +1,35 @@
+{
+  "name": "@supercode/core",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch",
+    "test": "vitest run",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.15.0",
+    "openai": "^4.52.0",
+    "cosmiconfig": "^9.0.0",
+    "js-yaml": "^4.1.0",
+    "zod": "^3.23.0",
+    "execa": "^9.0.0",
+    "glob": "^11.0.0",
+    "node-fetch": "^3.3.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@types/node": "^20.0.0",
+    "@types/js-yaml": "^4.0.9",
+    "vitest": "^1.5.0"
+  }
+}
