@@ -142,5 +142,16 @@ export function loadConfig(): SupercodeConfig {
     },
   };
 
+  // Auto-select default model based on which keys are actually available
+  if (!config.providers.gemini?.apiKey) {
+    if (config.providers.openrouter?.apiKey) {
+      config.models.default  = "openrouter/deepseek/deepseek-r1";
+      config.models.subAgent = "openrouter/deepseek/deepseek-r1";
+    } else if (config.providers.openai?.apiKey) {
+      config.models.default  = "gpt-4o";
+      config.models.subAgent = "gpt-4o";
+    }
+  }
+
   return config;
 }
