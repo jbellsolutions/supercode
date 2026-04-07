@@ -51,7 +51,7 @@ cd "$INSTALL_DIR"
 echo "  Installing dependencies..."
 pnpm install --frozen-lockfile --silent
 echo "  Building..."
-pnpm build --silent
+pnpm build
 echo -e "  ${GREEN}✓${NC} Built successfully"
 
 # ── Write launcher script ─────────────────────────────────────────────────────
