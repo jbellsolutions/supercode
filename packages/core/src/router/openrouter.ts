@@ -7,11 +7,21 @@ import type { TokenUsage } from "./cost-tracker.js";
  * Model names are prefixed with the provider, e.g. "openrouter/deepseek-r1"
  * maps to "deepseek/deepseek-r1" on OpenRouter.
  */
+// Legacy short-name aliases
 const MODEL_MAP: Record<string, string> = {
-  "openrouter/deepseek-r1": "deepseek/deepseek-r1",
-  "openrouter/mistral-nemo": "mistralai/mistral-nemo",
+  "openrouter/deepseek-r1":     "deepseek/deepseek-r1",
+  "openrouter/mistral-nemo":    "mistralai/mistral-nemo",
   "openrouter/claude-3.5-haiku": "anthropic/claude-3-5-haiku",
 };
+
+function resolveModel(model: string): string {
+  // Explicit alias map
+  if (MODEL_MAP[model]) return MODEL_MAP[model];
+  // Strip "openrouter/" prefix — everything after it IS the real model id
+  // e.g. "openrouter/deepseek/deepseek-r1" → "deepseek/deepseek-r1"
+  if (model.startsWith("openrouter/")) return model.slice("openrouter/".length);
+  return model;
+}
 
 export class OpenRouterAdapter {
   private client: OpenAI;
@@ -32,7 +42,7 @@ export class OpenRouterAdapter {
     messages: Message[],
     tools: Tool[]
   ): AsyncGenerator<StreamChunk & { usage?: TokenUsage }> {
-    const resolvedModel = MODEL_MAP[model] ?? model.replace("openrouter/", "");
+    const resolvedModel = resolveModel(model);
 
     const openaiMessages = messages.map((m) => {
       if (m.role === "tool") {

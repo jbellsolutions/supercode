@@ -27,8 +27,9 @@ const ROUTING_TABLE: Record<TaskType, { primary: string; fallback: string }> = {
 
 function providerFor(model: string): Provider {
   if (model.startsWith("gemini")) return "gemini";
+  if (model.startsWith("openrouter/")) return "openrouter";
   if (model.startsWith("codex") || model.startsWith("gpt") || model.startsWith("o4") || model.startsWith("o3")) return "codex";
-  return "openrouter";
+  return "openrouter"; // default unknown models to openrouter
 }
 
 export class ModelRouter {

@@ -35,6 +35,34 @@ const app = express();
 app.use(express.json());
 app.use(express.static(join(__dirname, "../src/public")));
 
+// ── OpenRouter model list ─────────────────────────────────────────────────────
+let cachedModels: unknown[] | null = null;
+
+app.get("/api/models", async (_req, res) => {
+  const config = loadConfig();
+  const apiKey = config.providers.openrouter?.apiKey;
+  if (!apiKey) {
+    res.json({ models: [], error: "OPENROUTER_API_KEY not set" });
+    return;
+  }
+  if (cachedModels) {
+    res.json({ models: cachedModels });
+    return;
+  }
+  try {
+    const r = await fetch("https://openrouter.ai/api/v1/models", {
+      headers: { Authorization: `Bearer ${apiKey}` },
+    });
+    const data = (await r.json()) as { data: unknown[] };
+    cachedModels = (data.data ?? []).sort((a: any, b: any) =>
+      (a.id as string).localeCompare(b.id as string)
+    );
+    res.json({ models: cachedModels });
+  } catch (err: unknown) {
+    res.json({ models: [], error: String(err) });
+  }
+});
+
 const httpServer = createServer(app);
 const wss = new WebSocketServer({ server: httpServer });
 
@@ -117,14 +145,23 @@ wss.on("connection", (ws) => {
 });
 
 // ── Handlers ──────────────────────────────────────────────────────────────────
+function pickDefaultModel(config: ReturnType<typeof loadConfig>, requested?: string): string {
+  if (requested) return requested;
+  // Auto-pick based on which keys are available
+  if (config.providers.openrouter?.apiKey) return "openrouter/deepseek-r1";
+  if (config.providers.openai?.apiKey)     return "gpt-4o";
+  if (config.providers.gemini?.apiKey)     return "gemini-2.5-flash";
+  return "openrouter/deepseek-r1"; // fallback — will error with helpful message
+}
+
 function handleInit(clientId: string, state: ClientState, msg: Record<string, unknown>) {
   const config = loadConfig();
   const workingDir = resolve((msg.workingDir as string) ?? process.cwd());
   const mode = (msg.mode as PermissionMode) ?? config.permissions.defaultMode;
-  const model = (msg.model as string) ?? undefined;
+  const model = pickDefaultModel(config, msg.model as string | undefined);
 
   const router = new ModelRouter(config);
-  if (model) router.setCurrentModel(model);
+  router.setCurrentModel(model);
 
   const registry = new ToolRegistry();
   const hooks = new HookRunner();

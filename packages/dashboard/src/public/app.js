@@ -34,9 +34,57 @@ const clearBtn      = $('clear-btn');
 const newSessionBtn = $('new-session-btn');
 const providerStatus = $('provider-status');
 
+// ── Model loader ──────────────────────────────────────────────────────────────
+let allModels = [];
+
+async function loadModels() {
+  const sel = $('model-select');
+  const search = $('model-search');
+  if (!sel || !search) return;
+  try {
+    const res = await fetch('/api/models');
+    const data = await res.json();
+    allModels = data.models || [];
+    renderModelOptions(allModels, sel);
+  } catch {
+    sel.innerHTML = '<option value="openrouter/deepseek/deepseek-r1">openrouter/deepseek-r1</option>';
+  }
+  search.addEventListener('input', () => {
+    const q = search.value.toLowerCase();
+    const filtered = q ? allModels.filter(m =>
+      m.id.toLowerCase().includes(q) || (m.name || '').toLowerCase().includes(q)
+    ) : allModels;
+    renderModelOptions(filtered, sel);
+  });
+}
+
+function renderModelOptions(models, sel) {
+  if (!models.length) {
+    sel.innerHTML = '<option value="">No models found</option>';
+    return;
+  }
+  const groups = {};
+  models.forEach(m => {
+    const provider = m.id.split('/')[0];
+    if (!groups[provider]) groups[provider] = [];
+    groups[provider].push(m);
+  });
+  sel.innerHTML = Object.entries(groups).map(([provider, list]) =>
+    `<optgroup label="${provider}">${
+      list.map(m => {
+        const price = m.pricing?.prompt
+          ? ` · $${(parseFloat(m.pricing.prompt) * 1e6).toFixed(3)}/M`
+          : '';
+        return `<option value="openrouter/${m.id}">${m.id}${price}</option>`;
+      }).join('')
+    }</optgroup>`
+  ).join('');
+}
+
 // ── Init ──────────────────────────────────────────────────────────────────────
 window.addEventListener('load', async () => {
   await loadConfig();
+  await loadModels();
   await loadSessions();
   connectWS();
 });
