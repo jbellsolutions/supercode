@@ -36,6 +36,11 @@ if [ -d "$INSTALL_DIR/.git" ]; then
   echo "  Updating existing install..."
   cd "$INSTALL_DIR" && git pull --quiet
 else
+  # Directory exists but isn't a git repo — wipe and re-clone
+  if [ -d "$INSTALL_DIR" ]; then
+    echo "  Removing old folder and re-cloning..."
+    rm -rf "$INSTALL_DIR"
+  fi
   echo "  Cloning SuperCode..."
   git clone --quiet https://github.com/jbellsolutions/supercode "$INSTALL_DIR"
 fi
